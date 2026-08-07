@@ -2,6 +2,57 @@
 // Simple CanvasRenderer with double‑buffering and HUD drawing.
 // This is a minimal implementation sufficient for unit tests.
 
+// Provide a very small mock CanvasRenderingContext2D for environments (like jsdom) that lack a real canvas.
+function createMockContext(): CanvasRenderingContext2D {
+  const mock: Partial<CanvasRenderingContext2D> = {};
+  // No‑op drawing methods
+  const noop = () => {};
+  mock.clearRect = noop;
+  mock.fillRect = noop;
+  mock.strokeRect = noop;
+  mock.beginPath = noop;
+  mock.arc = noop;
+  mock.fill = noop;
+  mock.stroke = noop;
+  mock.save = noop;
+  mock.restore = noop;
+  mock.drawImage = noop;
+  // Property setters
+  Object.defineProperty(mock, 'fillStyle', {
+    set: () => {},
+    get: () => '#000',
+  });
+  Object.defineProperty(mock, 'strokeStyle', {
+    set: () => {},
+    get: () => '#000',
+  });
+  Object.defineProperty(mock, 'lineWidth', {
+    set: () => {},
+    get: () => 1,
+  });
+  Object.defineProperty(mock, 'font', {
+    set: () => {},
+    get: () => '12px monospace',
+  });
+  Object.defineProperty(mock, 'textBaseline', {
+    set: () => {},
+    get: () => 'top',
+  });
+  // Minimal getImageData returning opaque pixels
+  mock.getImageData = (x: number, y: number, w: number, h: number) => {
+    const size = w * h * 4;
+    const data = new Uint8ClampedArray(size);
+    // Fill with opaque white (alpha 255)
+    for (let i = 3; i < size; i += 4) data[i] = 255;
+    return { data, width: w, height: h } as ImageData;
+  };
+  // fillText no‑op
+  mock.fillText = noop as any;
+  // Return as CanvasRenderingContext2D (type assertion)
+  return mock as CanvasRenderingContext2D;
+}
+
+
 export interface GameState {
   // positions are expressed in grid coordinates (x, y)
   pacman: { x: number; y: number };
