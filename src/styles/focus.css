@@ -1,0 +1,15 @@
+/* Focus-visible outline for interactive elements */
+:focus-visible {
+  outline: 3px solid #ffcc00; /* high-visibility yellow */
+  outline-offset: 2px;
+}
+
+/* Ensure focus-visible works for buttons, links, inputs */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #ffcc00;
+  outline-offset: 2px;
+}
