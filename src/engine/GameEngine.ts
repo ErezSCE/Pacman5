@@ -29,7 +29,7 @@ export interface GameState {
 export class GameEngine {
   private _running = false;
   private _paused = false;
-  private _lastTimestamp = 0;
+  private _lastTimestamp: number | null = null;
   private _subscribers = new Set<(state: GameState) => void>();
 
   /** Subscribe to tick events.
@@ -38,14 +38,7 @@ export class GameEngine {
    */
   public subscribe(callback: (state: GameState) => void): () => void {
     this._subscribers.add(callback);
-    // Immediately emit the current state so the subscriber has an initial value.
-    if (this._running) {
-      callback({
-        timestamp: this._lastTimestamp,
-        delta: 0,
-        paused: this._paused,
-      });
-    }
+    // No immediate emission; subscribers will receive state on the next tick.
     return () => this._subscribers.delete(callback);
   }
 
@@ -54,7 +47,8 @@ export class GameEngine {
     if (this._running) return;
     this._running = true;
     this._paused = false;
-    this._lastTimestamp = performance.now();
+    // Initialize last timestamp to 0 for deterministic delta on first tick.
+    this._lastTimestamp = null;
     requestAnimationFrame(this._tick);
   }
 
@@ -84,13 +78,12 @@ export class GameEngine {
     if (!this._running) return;
 
     if (this._paused) {
-      // When paused we still keep the loop alive so that resume can request a
-      // fresh frame without waiting for the next animation frame.
-      requestAnimationFrame(this._tick);
+      // When paused we stop emitting ticks and do not schedule further frames.
+      // The engine will be resumed via {@link resume}, which will request a new frame.
       return;
     }
 
-    const delta = timestamp - this._lastTimestamp;
+    const delta = this._lastTimestamp !== null ? timestamp - this._lastTimestamp : 0;
     const state: GameState = {
       timestamp,
       delta,
