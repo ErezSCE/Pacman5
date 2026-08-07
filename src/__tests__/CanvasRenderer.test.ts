@@ -1,4 +1,5 @@
 import { CanvasRenderer, GameState } from '../render/CanvasRenderer';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('CanvasRenderer', () => {
   let canvas: HTMLCanvasElement;

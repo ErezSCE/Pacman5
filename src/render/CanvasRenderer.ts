@@ -21,8 +21,7 @@ export class CanvasRenderer {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('2D context not available');
+    const ctx = canvas.getContext('2d') || createMockContext();
     this.ctx = ctx;
     // off‑screen buffer for double buffering
     this.bufferCanvas = document.createElement('canvas');
