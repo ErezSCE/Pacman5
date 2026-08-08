@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite';
-import visualizer from 'vite-plugin-visualizer';
 import viteImagemin from 'vite-plugin-imagemin';
 import { resolve } from 'path';
 import { injectManifest } from 'workbox-build';
