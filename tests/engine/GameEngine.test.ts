@@ -2,10 +2,18 @@ import { GameEngine, GameState } from '../../src/engine/GameEngine';
 
 describe('GameEngine.runLoop', () => {
   it('starts the loop and emits state on each tick', (done) => {
+    let rafCallCount = 0;
     const mockRaf = jest.fn().mockImplementation((cb) => {
-      // simulate two frames
-      setTimeout(() => cb(1000), 0);
-      setTimeout(() => cb(1016), 0);
+      // simulate two frames only
+      if (rafCallCount === 0) {
+        rafCallCount++;
+        setTimeout(() => cb(1000), 0);
+      } else if (rafCallCount === 1) {
+        rafCallCount++;
+        setTimeout(() => cb(1016), 0);
+      }
+      // after two calls, do nothing to stop infinite loop
+      return 0;
     });
     // @ts-ignore replace global requestAnimationFrame
     global.requestAnimationFrame = mockRaf;
